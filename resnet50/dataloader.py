@@ -1,11 +1,31 @@
 
+from typing import Any, List, Callable
 import torchvision
 from torchvision import transforms
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Dataset
+from torch.utils import data
+from PIL import Image
 
 
-class MyDataset(object):
-    pass
+class MyDataset(Dataset):
+    def __init__(self, data_path, labels, transform: Callable) -> None:
+        self.data_tensors = [self.default_loader(each_data_path) for each_data_path in data_path]
+        self.labels = labels
+        self.transform = transform
+
+    def __getitem__(self, index) -> Any:
+        img = self.data_tensors[index]
+        label = self.labels[index]
+
+        return img, label
+
+    def __len__(self):
+        return len(self.data_tensors)
+
+    def default_loader(self, path):
+        img_pil = Image.open(path)
+        img_tensor = self.transform(img_pil)
+        return img_tensor
 
 
 class MyDataLoader(object):
